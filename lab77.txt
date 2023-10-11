@@ -1,0 +1,100 @@
+
+
+
+
+
+
+
+package SingletonPattern;
+
+public class Main {
+	public static void main(String[] args) {
+		AccountManager accountManager = AccountManager.getInstance();
+		// Create accounts
+		accountManager.createAccount(1, "ABCD EFG", 1000.0);
+		accountManager.createAccount(2, "EFGH XYZ", 2000.0);
+		// Perform operations
+		accountManager.withdraw(1, 500.0);
+		accountManager.deposit(2, 1000.0);
+		// Get balances
+		System.out.println("Balance of account 1: " + accountManager.getBalance(1));
+		System.out.println("Balance of account 2: " + accountManager.getBalance(2)); 
+	}
+}
+
+
+package SingletonPattern;
+
+import java.util.HashMap;
+import java.util.Map; 
+
+public class AccountManager {
+	private static final AccountManager INSTANCE = new AccountManager();
+	private Map<Integer, Account> accounts;
+	private AccountManager() {
+		accounts = new HashMap<>();
+	}
+	public static AccountManager getInstance() {
+		return INSTANCE;
+	}
+	public synchronized void createAccount(int accountNumber, String accountHolder, double initialBalance) {
+		Account account = new Account(accountNumber, accountHolder, initialBalance);
+		accounts.put(accountNumber, account);
+	}
+	public synchronized void withdraw(int accountNumber, double amount) {
+		Account account = accounts.get(accountNumber);
+		if (account != null) {
+			account.withdraw(amount);
+		} else {
+			System.out.println("Account not found: " + accountNumber);
+		}
+	}
+	public synchronized void deposit(int accountNumber, double amount) {
+		Account account = accounts.get(accountNumber);
+		if (account != null) {
+			account.deposit(amount);
+		} else {
+			System.out.println("Account not found: " + accountNumber);
+		}
+	}
+	public synchronized double getBalance(int accountNumber) {
+		Account account = accounts.get(accountNumber);
+		if (account != null) {
+			return account.getBalance();
+		} else {
+			System.out.println("Account not found: " + accountNumber);
+			return -1.0; // Return a negative value to indicate account not found
+		}
+	}
+} 
+
+
+
+
+package SingletonPattern;
+
+public class Account {
+	private int accountNumber;
+	private String accountHolder;
+	private double initialBalance;
+	public Account(int accountNumber, String accountHolder, double initialBalance) {
+		this.accountNumber = accountNumber;
+		this.accountHolder = accountHolder;
+		this.initialBalance = initialBalance;
+	}
+	public synchronized void withdraw(double amount) {
+		if (initialBalance >= amount) {
+			initialBalance -= amount;
+			System.out.println("Withdrawn " + amount + " from account " + accountNumber+"of "+accountHolder);
+		} else {
+			System.out.println("Insufficient balance for account " + accountNumber);
+		}
+	}
+	public synchronized void deposit(double amount) {
+		initialBalance += amount;
+		System.out.println("Deposited " + amount + " to account " + accountNumber);
+	}
+	public synchronized double getBalance() {
+		return initialBalance;
+	}
+} 
